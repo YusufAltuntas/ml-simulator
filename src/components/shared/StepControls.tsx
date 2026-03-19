@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { useSimStore } from '../../store/useSimStore'
 import { useTranslation } from '../../i18n/useTranslation'
+import { HelpTooltip } from './HelpTooltip'
 
 export function StepControls() {
   const { t } = useTranslation()
@@ -16,82 +17,74 @@ export function StepControls() {
 
   useEffect(() => {
     if (!isPlaying) return
-    const interval = setInterval(() => {
-      nextStep()
-    }, playSpeed)
+    const interval = setInterval(nextStep, playSpeed)
     return () => clearInterval(interval)
   }, [isPlaying, playSpeed, nextStep])
 
-  const btnStyle = {
-    backgroundColor: 'var(--bg-tertiary)',
-    borderColor: 'var(--border)',
-    color: 'var(--text-primary)',
-  }
+  const btnBase = "px-2 py-1 rounded-lg text-xs cursor-pointer border transition-colors"
 
   return (
     <div
-      className="flex items-center gap-3 p-3 rounded-xl flex-wrap"
+      className="flex items-center gap-2 rounded-xl flex-wrap"
       style={{
         backgroundColor: 'var(--bg-secondary)',
         border: '1px solid var(--border)',
+        padding: '8px 12px',
       }}
     >
-      <button
-        onClick={reset}
-        className="px-2 py-1.5 rounded-lg text-sm cursor-pointer border"
-        style={btnStyle}
-        title={t.simulator.controls.reset}
-      >
+      <HelpTooltip title={t.help.stepControls.title} content={t.help.stepControls.content} />
+
+      <button onClick={reset} className={btnBase}
+        style={{ backgroundColor: 'var(--bg-tertiary)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}>
         \u23EE
       </button>
-      <button
-        onClick={prevStep}
-        disabled={stepIndex === 0}
-        className="px-2 py-1.5 rounded-lg text-sm cursor-pointer border disabled:opacity-30"
-        style={btnStyle}
-        title={t.simulator.controls.prev}
-      >
+      <button onClick={prevStep} disabled={stepIndex === 0}
+        className={`${btnBase} disabled:opacity-30`}
+        style={{ backgroundColor: 'var(--bg-tertiary)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}>
         \u25C0
       </button>
-      <button
-        onClick={togglePlaying}
-        className="px-3 py-1.5 rounded-lg text-sm cursor-pointer border font-medium"
+      <button onClick={togglePlaying}
+        className={`${btnBase} font-medium`}
         style={{
           backgroundColor: isPlaying ? 'var(--accent-red)' : 'var(--accent-green)',
-          borderColor: 'transparent',
-          color: '#fff',
-        }}
-      >
+          borderColor: 'transparent', color: '#fff',
+          minWidth: 70,
+        }}>
         {isPlaying ? '\u23F8 ' + t.simulator.controls.pause : '\u25B6 ' + t.simulator.controls.play}
       </button>
-      <button
-        onClick={nextStep}
-        disabled={stepIndex >= totalSteps - 1}
-        className="px-2 py-1.5 rounded-lg text-sm cursor-pointer border disabled:opacity-30"
-        style={btnStyle}
-        title={t.simulator.controls.next}
-      >
+      <button onClick={nextStep} disabled={stepIndex >= totalSteps - 1}
+        className={`${btnBase} disabled:opacity-30`}
+        style={{ backgroundColor: 'var(--bg-tertiary)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}>
         \u25B6
       </button>
 
-      <span className="text-sm font-mono mx-2" style={{ color: 'var(--text-muted)' }}>
-        {t.simulator.controls.step} {stepIndex + 1} {t.simulator.controls.of} {totalSteps}
-      </span>
+      <div className="flex items-center gap-1 mx-1"
+        style={{
+          backgroundColor: 'var(--bg-primary)',
+          padding: '3px 8px',
+          borderRadius: 8,
+          border: '1px solid var(--border)',
+        }}>
+        <span className="text-[10px] font-mono" style={{ color: 'var(--accent-blue)' }}>
+          {stepIndex + 1}
+        </span>
+        <span className="text-[10px]" style={{ color: 'var(--text-muted)' }}>/</span>
+        <span className="text-[10px] font-mono" style={{ color: 'var(--text-muted)' }}>
+          {totalSteps}
+        </span>
+      </div>
 
-      <div className="flex items-center gap-2 ml-auto">
-        <span className="text-xs" style={{ color: 'var(--text-muted)' }}>
+      <div className="flex items-center gap-1.5 ml-auto">
+        <span className="text-[10px]" style={{ color: 'var(--text-muted)' }}>
           {t.simulator.controls.speed}
         </span>
         <input
-          type="range"
-          min={50}
-          max={2000}
-          step={50}
+          type="range" min={50} max={2000} step={50}
           value={playSpeed}
           onChange={(e) => setPlaySpeed(Number(e.target.value))}
-          className="w-20 accent-[var(--accent-blue)]"
+          className="w-16 accent-[var(--accent-blue)]"
         />
-        <span className="text-xs font-mono" style={{ color: 'var(--text-muted)' }}>
+        <span className="text-[10px] font-mono" style={{ color: 'var(--text-muted)' }}>
           {playSpeed}ms
         </span>
       </div>

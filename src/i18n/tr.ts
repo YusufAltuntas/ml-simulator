@@ -37,7 +37,7 @@ export const tr: Translations = {
     controls: {
       prev: 'Onceki',
       next: 'Sonraki',
-      play: 'Otomatik',
+      play: 'Oynat',
       pause: 'Duraklat',
       reset: 'Sifirla',
       speed: 'Hiz',
@@ -52,7 +52,7 @@ export const tr: Translations = {
     panels: {
       parameters: 'Parametreler',
       info: 'Adim Detaylari',
-      network: 'Ag Yapisi',
+      network: 'Sinir Agi',
       decisionBoundary: 'Karar Siniri',
       lossChart: 'Kayip Grafigi',
     },
@@ -80,7 +80,7 @@ export const tr: Translations = {
     steps: {
       input: {
         title: 'Girdi',
-        description: 'Girdi verisi aga beslenir. Her girdi noronu bir ozellik degeri alir.',
+        description: 'Girdi verisi aga besleniyor. Her girdi noronu bir ozellik degeri alir.',
         technical: 'Girdi vektoru x = [x₁, x₂, ..., xₙ] girdi katmani noronlarina yuklenir. Bu asamada herhangi bir donusum yapilmaz.',
       },
       forwardZ: {
@@ -108,6 +108,56 @@ export const tr: Translations = {
         description: 'Agirliklar hatayi azaltacak yonde hafifce ayarlanir. Bu, ogrenme surecidir!',
         technical: 'W ← W - η · ∂L/∂W, burada η ogrenme oranidir. ∂L/∂W = δ · aₗ₋₁ᵀ delta ve onceki aktivasyonlarin dis carpimidir.',
       },
+    },
+  },
+  help: {
+    preset: {
+      title: 'Hazir Ayar',
+      content: 'Hazir ayar, onceden yapilmis bir konfigurasyondur. Her parametreyi kendiniz ayarlamak yerine bir hazir ayar secin — ag mimarisi, ogrenme orani ve veri seti otomatik ayarlanir. Hizli deneyler icin harikedir!',
+    },
+    layers: {
+      title: 'Ag Katmanlari',
+      content: 'Agin her katmaninda kac noron oldugunu gosterir. Ornegin [2 → 4 → 1]: 2 girdi noronu, gizli katmanda 4 noron, 1 cikti noronu. Daha fazla noron = daha karmasik desenleri ogrenme kapasitesi, ama daha yavas.',
+    },
+    activation: {
+      title: 'Aktivasyon Fonksiyonu',
+      content: 'Aktivasyon fonksiyonlari bir noronun hangi sinyali ileteceigini belirler. Onlar olmadan ag sadece duz cizgiler ogrenebilir. Sigmoid 0-1 arasinda cikar (olasiliklar icin iyi), ReLU pozitif degerleri oldugu gibi gecirir (hizli egitim), Tanh -1 ile 1 arasinda cikar.',
+    },
+    learningRate: {
+      title: 'Ogrenme Orani',
+      content: 'Her ogrenme adiminin ne kadar buyuk oldugunu kontrol eder. Cok yuksek = ag asiri atlar ve asla yakinsamaz. Cok dusuk = ogrenme cok yavas. Tipik degerler: 0.001 - 0.5. Bunu yokustan yururken adim boyutu gibi dusunun — cok buyuk olursa vadiyi atlayabilirsiniz.',
+    },
+    epochs: {
+      title: 'Epoch Sayisi',
+      content: 'Bir epoch = ag tum egitim verisini bir kez gorur. Daha fazla epoch = daha fazla pratik. Sinava calismak gibi — materyali bircok kez gozden gecirmek yardimci olur, ama cok fazla tekrar ezber yapar, anlama degil (asiri ogrenme).',
+    },
+    dataset: {
+      title: 'Veri Seti',
+      content: 'Agin ogrendigi egitim verisi. XOR, basit bir cizginin siniflari ayiramadigi klasik bir problemdir — ag dogrusal olmayan bir sinir ogrenmek zorundadir. Daire ise benzer ama noktalar daireler seklinde dizilir.',
+    },
+    network: {
+      title: 'Sinir Agi',
+      content: 'Bu diyagram agin yapisini gosterir. Daireler noronlar, cizgiler baglantilardir (agirliklar). Renkler aktivasyon degerlerini gosterir: yesil = pozitif/aktif, kirmizi = negatif. Cizgi kalinligi agirlik buyuklugunu gosterir. Titreyen noronlar su anki adimda islenmektedir.',
+    },
+    decisionBoundary: {
+      title: 'Karar Siniri',
+      content: 'Bu isi haritasi agin 2 boyutlu uzaydaki her noktayi nasil siniflandirdigini gosterir. Yesil bolgeler = sinif 1, kirmizi bolgeler = sinif 0. Renkli noktalar gercek egitim verileridir. Ag ogrendikce sinirin nasil degistigini izleyin!',
+    },
+    lossChart: {
+      title: 'Kayip Grafigi',
+      content: 'Kayip, tahmin hatasini olcer — dusuk olan daha iyidir. Bu grafik kaybin egitim epoch\'lari boyunca nasil azaldigini gosterir. Duzenli azalan bir egri = saglikli ogrenme. Duzlesirse ag takilmis olabilir. Yukseliyorsa ogrenme orani cok yuksek olabilir.',
+    },
+    stepControls: {
+      title: 'Adim Kontrolleri',
+      content: 'Simulasyonda adim adim ilerleyin veya otomatik ilerleme icin oynat butonuna basin. Her adim bir islemi gosterir: girdi besleme, agirlikli toplam hesaplama, aktivasyon uygulama, hata hesaplama, gradyan yayilimi veya agirliklari guncelleme.',
+    },
+    depthToggle: {
+      title: 'Sezgisel / Teknik Mod',
+      content: 'Iki aciklama stili arasinda gecis yapin. Sezgisel mod basit dil ve benzetmeler kullanir — yeni baslayanlar icin mukemmel. Teknik mod gercek matematik formullerini gosterir — ogrenciler ve uzmanlar icin ideal.',
+    },
+    stepInfo: {
+      title: 'Adim Detaylari',
+      content: 'Bu panel su anki adimda ne oldugunu aciklar. Aciklama, formul ve hesaplanan sayisal degerler gosterilir. Detay seviyesini degistirmek icin Sezgisel ve Teknik modlar arasinda gecis yapin.',
     },
   },
 }

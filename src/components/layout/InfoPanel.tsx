@@ -2,7 +2,7 @@ import { useSimStore } from '../../store/useSimStore'
 import { useTranslation } from '../../i18n/useTranslation'
 import type { SimStep } from '../../simulators/ANNSimulator'
 import { FormulaBox } from '../shared/FormulaBox'
-import { ValueCard } from '../shared/ValueCard'
+import { HelpTooltip } from '../shared/HelpTooltip'
 
 interface InfoPanelProps {
   step: SimStep | null
@@ -23,10 +23,14 @@ export function InfoPanel({ step }: InfoPanelProps) {
   if (!step) {
     return (
       <div
-        className="p-4 rounded-xl h-full"
-        style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border)' }}
+        className="rounded-xl h-full flex items-center justify-center"
+        style={{
+          backgroundColor: 'var(--bg-secondary)',
+          border: '1px solid var(--border)',
+          padding: '14px 16px',
+        }}
       >
-        <p style={{ color: 'var(--text-muted)' }} className="text-sm">
+        <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
           {t.simulator.panels.info}
         </p>
       </div>
@@ -40,64 +44,93 @@ export function InfoPanel({ step }: InfoPanelProps) {
 
   return (
     <div
-      className="p-4 rounded-xl flex flex-col gap-3 overflow-y-auto"
+      className="rounded-xl flex flex-col gap-2 overflow-y-auto h-full"
       style={{
         backgroundColor: 'var(--bg-secondary)',
         border: '1px solid var(--border)',
-        maxHeight: 'calc(100vh - 120px)',
+        padding: '14px 16px',
       }}
     >
-      <div className="flex items-center gap-2">
+      {/* Header */}
+      <div className="flex items-center gap-1.5 flex-wrap">
+        <HelpTooltip title={t.help.stepInfo.title} content={t.help.stepInfo.content} />
         <span
-          className="text-xs font-semibold px-2 py-0.5 rounded-full uppercase"
+          className="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide"
           style={{ backgroundColor: tagColor, color: '#fff' }}
         >
           {step.tag}
         </span>
         {step.layer !== undefined && (
-          <span className="text-xs" style={{ color: 'var(--text-muted)' }}>
-            Layer {step.layer + 1}
+          <span className="text-[10px]" style={{ color: 'var(--text-muted)' }}>
+            L{step.layer + 1}
           </span>
         )}
+        <span className="text-[10px] ml-auto" style={{ color: 'var(--text-muted)' }}>
+          E{step.epoch + 1} / S{step.sampleIndex + 1}
+        </span>
       </div>
 
-      <h3 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>
+      {/* Title */}
+      <h3 className="text-sm font-bold leading-tight" style={{ color: 'var(--text-primary)' }}>
         {title}
       </h3>
 
-      <p className="text-sm leading-relaxed" style={{ color: 'var(--text-muted)' }}>
+      {/* Description */}
+      <p className="text-xs leading-relaxed" style={{ color: 'var(--text-muted)' }}>
         {description}
       </p>
 
+      {/* Technical note */}
       {depthMode === 'technical' && technicalNote && (
         <div
-          className="p-3 rounded-lg text-sm"
+          className="rounded-lg text-[11px] font-mono leading-relaxed"
           style={{
             backgroundColor: 'var(--bg-tertiary)',
             border: '1px solid var(--border)',
-            color: 'var(--text-primary)',
+            color: 'var(--accent-cyan)',
+            padding: '8px 10px',
           }}
         >
-          <span className="font-mono text-xs">{technicalNote}</span>
+          {technicalNote}
         </div>
       )}
 
+      {/* Formula */}
       {step.formula && <FormulaBox formula={step.formula} />}
 
-      <div className="flex flex-col gap-2 mt-1">
+      {/* Key values — compact */}
+      <div className="flex flex-col gap-1.5 mt-auto">
         {Object.entries(step.values).map(([key, val]) => {
           if (typeof val === 'number') {
-            return <ValueCard key={key} label={key} values={[val]} />
+            return (
+              <div key={key} className="flex items-center gap-2">
+                <span className="text-[10px] font-medium" style={{ color: 'var(--text-muted)' }}>{key}</span>
+                <span className="font-mono text-[11px]" style={{
+                  color: val > 0 ? 'var(--accent-green)' : val < 0 ? 'var(--accent-red)' : 'var(--text-muted)',
+                }}>{typeof val === 'number' ? val.toFixed(4) : ''}</span>
+              </div>
+            )
           }
-          if (Array.isArray(val) && typeof val[0] === 'number') {
-            return <ValueCard key={key} label={key} values={val as number[]} />
+          if (Array.isArray(val) && typeof val[0] === 'number' && val.length <= 10) {
+            return (
+              <div key={key} className="flex flex-col gap-0.5">
+                <span className="text-[10px] font-medium" style={{ color: 'var(--text-muted)' }}>{key}</span>
+                <div className="flex flex-wrap gap-0.5">
+                  {(val as number[]).map((v, i) => (
+                    <span key={i} className="font-mono text-[10px] px-1 rounded"
+                      style={{
+                        backgroundColor: 'var(--bg-primary)',
+                        color: v > 0 ? 'var(--accent-green)' : v < 0 ? 'var(--accent-red)' : 'var(--text-muted)',
+                      }}>
+                      {v.toFixed(3)}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )
           }
           return null
         })}
-      </div>
-
-      <div className="text-xs mt-2" style={{ color: 'var(--text-muted)' }}>
-        Epoch {step.epoch + 1} | Sample {step.sampleIndex + 1}
       </div>
     </div>
   )

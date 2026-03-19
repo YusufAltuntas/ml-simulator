@@ -2,6 +2,7 @@ import { useEffect, useRef, useMemo } from 'react'
 import { MLP } from '../../models/ann/MLP'
 import type { Dataset } from '../../data/datasets'
 import { useTranslation } from '../../i18n/useTranslation'
+import { HelpTooltip } from '../shared/HelpTooltip'
 
 interface DecisionBoundaryProps {
   layers: number[]
@@ -10,8 +11,8 @@ interface DecisionBoundaryProps {
   dataset: Dataset
 }
 
-const CANVAS_SIZE = 300
-const GRID_RES = 80
+const CANVAS_SIZE = 250
+const GRID_RES = 70
 
 export function DecisionBoundary({ layers, activations, weights, dataset }: DecisionBoundaryProps) {
   const { t } = useTranslation()
@@ -49,7 +50,6 @@ export function DecisionBoundary({ layers, activations, weights, dataset }: Deci
     const cellW = CANVAS_SIZE / GRID_RES
     const cellH = CANVAS_SIZE / GRID_RES
 
-    // Draw heatmap
     for (let row = 0; row < GRID_RES; row++) {
       for (let col = 0; col < GRID_RES; col++) {
         const val = heatmapData[row * GRID_RES + col]
@@ -63,26 +63,6 @@ export function DecisionBoundary({ layers, activations, weights, dataset }: Deci
       }
     }
 
-    // Draw decision boundary (0.5 contour)
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)'
-    ctx.lineWidth = 1.5
-    ctx.beginPath()
-    for (let row = 0; row < GRID_RES - 1; row++) {
-      for (let col = 0; col < GRID_RES - 1; col++) {
-        const v00 = heatmapData[row * GRID_RES + col]
-        const v10 = heatmapData[row * GRID_RES + col + 1]
-        const v01 = heatmapData[(row + 1) * GRID_RES + col]
-
-        if ((v00 - 0.5) * (v10 - 0.5) < 0 || (v00 - 0.5) * (v01 - 0.5) < 0) {
-          const x = (col + 0.5) * cellW
-          const y = (row + 0.5) * cellH
-          ctx.moveTo(x - 1, y - 1)
-          ctx.lineTo(x + 1, y + 1)
-        }
-      }
-    }
-    ctx.stroke()
-
     // Draw data points
     const [xMin, xMax] = dataset.rangeX
     const [yMin, yMax] = dataset.rangeY
@@ -95,30 +75,34 @@ export function DecisionBoundary({ layers, activations, weights, dataset }: Deci
       const cy = ((py - yMin) / (yMax - yMin)) * CANVAS_SIZE
 
       ctx.beginPath()
-      ctx.arc(cx, cy, 4, 0, Math.PI * 2)
+      ctx.arc(cx, cy, 3.5, 0, Math.PI * 2)
       ctx.fillStyle = target > 0.5 ? '#56d364' : '#f85149'
       ctx.fill()
-      ctx.strokeStyle = 'rgba(255,255,255,0.8)'
-      ctx.lineWidth = 1
+      ctx.strokeStyle = 'rgba(255,255,255,0.7)'
+      ctx.lineWidth = 0.8
       ctx.stroke()
     }
   }, [heatmapData, dataset])
 
   return (
     <div
-      className="p-4 rounded-xl"
+      className="rounded-xl flex flex-col"
       style={{
         backgroundColor: 'var(--bg-secondary)',
         border: '1px solid var(--border)',
+        padding: '8px 12px',
       }}
     >
-      <h4 className="text-sm font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>
-        {t.simulator.panels.decisionBoundary}
-      </h4>
+      <div className="flex items-center gap-1.5 mb-1">
+        <h4 className="text-xs font-semibold" style={{ color: 'var(--text-primary)' }}>
+          {t.simulator.panels.decisionBoundary}
+        </h4>
+        <HelpTooltip title={t.help.decisionBoundary.title} content={t.help.decisionBoundary.content} />
+      </div>
       <canvas
         ref={canvasRef}
         className="w-full rounded-lg"
-        style={{ aspectRatio: '1/1', maxWidth: CANVAS_SIZE }}
+        style={{ aspectRatio: '1/1' }}
       />
     </div>
   )

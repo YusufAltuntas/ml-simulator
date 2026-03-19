@@ -58,8 +58,8 @@ export function Simulator() {
   }, [steps.length, setTotalSteps])
 
   const currentStep: SimStep | null = steps[stepIndex] ?? null
+
   const currentWeights = useMemo(() => {
-    // Find the most recent update step's weights, or use initial weights
     for (let i = Math.min(stepIndex, steps.length - 1); i >= 0; i--) {
       if (steps[i].weights) return steps[i].weights!
     }
@@ -70,39 +70,24 @@ export function Simulator() {
     return simulator.getLossUpToStep(stepIndex)
   }, [simulator, stepIndex])
 
-  // Build activations for network visualization
   const activations = useMemo(() => {
     if (!currentStep) return undefined
     const layers = preset.layers
     const result: number[][] = []
 
-    // Input layer
     const inputVals = currentStep.values.input as number[] | undefined
-    if (inputVals) {
-      result.push(inputVals)
-    } else {
-      result.push(new Array(layers[0]).fill(0))
-    }
+    result.push(inputVals ?? new Array(layers[0]).fill(0))
 
-    // Hidden + output layers from step values
     const aVal = currentStep.values.a as number[] | undefined
     const zVal = currentStep.values.z as number[] | undefined
 
     if (currentStep.type === 'forward_a' && aVal && currentStep.layer !== undefined) {
       for (let l = 0; l < layers.length - 1; l++) {
-        if (l === currentStep.layer) {
-          result.push(aVal)
-        } else {
-          result.push(new Array(layers[l + 1]).fill(0))
-        }
+        result.push(l === currentStep.layer ? aVal : new Array(layers[l + 1]).fill(0))
       }
     } else if (currentStep.type === 'forward_z' && zVal && currentStep.layer !== undefined) {
       for (let l = 0; l < layers.length - 1; l++) {
-        if (l === currentStep.layer) {
-          result.push(zVal)
-        } else {
-          result.push(new Array(layers[l + 1]).fill(0))
-        }
+        result.push(l === currentStep.layer ? zVal : new Array(layers[l + 1]).fill(0))
       }
     } else {
       for (let l = 0; l < layers.length - 1; l++) {
@@ -116,9 +101,12 @@ export function Simulator() {
   const dataset = datasetMap[preset.datasetKey]
 
   return (
-    <div className="flex-1 flex flex-col lg:flex-row gap-4 p-4 overflow-hidden">
-      {/* Left: Parameters */}
-      <div className="w-full lg:w-64 shrink-0">
+    <div
+      className="flex-1 flex flex-col lg:flex-row gap-3 overflow-hidden"
+      style={{ padding: '12px 16px', height: 'calc(100vh - 52px)' }}
+    >
+      {/* Left Column: Parameters */}
+      <div className="w-full lg:w-56 xl:w-64 shrink-0 overflow-y-auto">
         <ParameterPanel
           currentPreset={preset}
           onPresetChange={handlePresetChange}
@@ -129,16 +117,20 @@ export function Simulator() {
         />
       </div>
 
-      {/* Center: Visualizations */}
-      <div className="flex-1 flex flex-col gap-4 min-w-0 overflow-y-auto">
-        <NetworkSVG
-          layers={preset.layers}
-          weights={currentWeights}
-          step={currentStep}
-          activations={activations}
-        />
+      {/* Center Column: Visualizations */}
+      <div className="flex-1 flex flex-col gap-3 min-w-0 min-h-0">
+        {/* Network - takes proportional space */}
+        <div className="flex-[2] min-h-0">
+          <NetworkSVG
+            layers={preset.layers}
+            weights={currentWeights}
+            step={currentStep}
+            activations={activations}
+          />
+        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Bottom row: Decision Boundary + Loss Chart side by side */}
+        <div className="flex-[3] grid grid-cols-2 gap-3 min-h-0">
           <DecisionBoundary
             layers={preset.layers}
             activations={preset.activations}
@@ -148,11 +140,14 @@ export function Simulator() {
           <LossChart data={lossData} />
         </div>
 
-        <StepControls />
+        {/* Step Controls - fixed height */}
+        <div className="shrink-0">
+          <StepControls />
+        </div>
       </div>
 
-      {/* Right: Info Panel */}
-      <div className="w-full lg:w-72 shrink-0">
+      {/* Right Column: Info Panel */}
+      <div className="w-full lg:w-56 xl:w-72 shrink-0 min-h-0">
         <InfoPanel step={currentStep} />
       </div>
     </div>

@@ -1,5 +1,7 @@
 import { useMemo } from 'react'
 import type { SimStep } from '../../simulators/ANNSimulator'
+import { useTranslation } from '../../i18n/useTranslation'
+import { HelpTooltip } from '../shared/HelpTooltip'
 
 interface NetworkSVGProps {
   layers: number[]
@@ -8,11 +10,11 @@ interface NetworkSVGProps {
   activations?: number[][]
 }
 
-const WIDTH = 600
-const HEIGHT = 320
-const PADDING_X = 60
-const PADDING_Y = 30
-const NODE_RADIUS = 14
+const WIDTH = 560
+const HEIGHT = 220
+const PADDING_X = 50
+const PADDING_Y = 20
+const NODE_RADIUS = 12
 
 function valueToColor(value: number): string {
   const clamped = Math.max(-1, Math.min(1, value))
@@ -34,6 +36,8 @@ function weightToWidth(weight: number): number {
 }
 
 export function NetworkSVG({ layers, weights, step, activations }: NetworkSVGProps) {
+  const { t } = useTranslation()
+
   const positions = useMemo(() => {
     const numLayers = layers.length
     const layerX = layers.map((_, i) =>
@@ -86,8 +90,15 @@ export function NetworkSVG({ layers, weights, step, activations }: NetworkSVGPro
       style={{
         backgroundColor: 'var(--bg-secondary)',
         border: '1px solid var(--border)',
+        padding: '8px 12px 4px',
       }}
     >
+      <div className="flex items-center gap-1.5 mb-1">
+        <h4 className="text-xs font-semibold" style={{ color: 'var(--text-primary)' }}>
+          {t.simulator.panels.network}
+        </h4>
+        <HelpTooltip title={t.help.network.title} content={t.help.network.content} />
+      </div>
       <svg viewBox={`0 0 ${WIDTH} ${HEIGHT}`} className="w-full" style={{ display: 'block' }}>
         {/* Edges */}
         {weights.W.map((layerW, l) =>
@@ -106,7 +117,7 @@ export function NetworkSVG({ layers, weights, step, activations }: NetworkSVGPro
                   y2={to.y}
                   stroke={isHighlighted ? edgeColor : 'var(--border)'}
                   strokeWidth={isHighlighted ? weightToWidth(w) : 0.5}
-                  opacity={isHighlighted ? weightToOpacity(w) : 0.3}
+                  opacity={isHighlighted ? weightToOpacity(w) : 0.25}
                 />
               )
             })
@@ -160,8 +171,8 @@ export function NetworkSVG({ layers, weights, step, activations }: NetworkSVGPro
                     y={pos.y + 1}
                     textAnchor="middle"
                     dominantBaseline="middle"
-                    fill="var(--text-primary)"
-                    fontSize={8}
+                    fill="#fff"
+                    fontSize={7}
                     fontFamily="'JetBrains Mono', monospace"
                   >
                     {aVal.toFixed(2)}
@@ -177,10 +188,10 @@ export function NetworkSVG({ layers, weights, step, activations }: NetworkSVGPro
           <text
             key={`label-${l}`}
             x={layerNodes[0].x}
-            y={HEIGHT - 5}
+            y={HEIGHT - 2}
             textAnchor="middle"
             fill="var(--text-muted)"
-            fontSize={10}
+            fontSize={9}
             fontFamily="'Inter', sans-serif"
           >
             {l === 0 ? 'Input' : l === layers.length - 1 ? 'Output' : `H${l}`}
